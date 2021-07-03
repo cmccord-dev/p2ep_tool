@@ -1,0 +1,16 @@
+{
+  "name": "p2ep_tools",
+  "version": "0.3.0",
+  "description": "",
+  "main": "p2ep_tool.mjs",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "eiowlta",
+  "dependencies": {
+    "yargs": "^17.0.1"
+  }
+}
