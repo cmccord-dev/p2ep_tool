@@ -4,6 +4,12 @@ import * as cdimage from "../lib/cdimage.mjs";
 import * as file from "../lib/file.mjs";
 import * as msg from "../lib/msg_script.mjs";
 
+import * as pt from "../lib/locale/pt.mjs";
+
+let locales = {
+  pt,
+};
+
 export const command = [`insert_battle_strings [files..]`];
 export const desc = "Reinsert battle strings";
 export const builder = {
@@ -23,6 +29,26 @@ export const handler = async (argv) => {
     let name = argv.files[i];
     console.log(`Processing ${name}`);
     let file = JSON.parse(fs.readFileSync(name));
+
+    if (locales[argv.lang]) {
+      let locale = locales[argv.lang];
+      for (let j = 0; j < file.strings.length; j++) {
+        for (let i = 0; i < file.strings[j].length; i++) {
+          if (typeof file.strings[j][i] === "string") {
+            file.strings[j][i] = file.strings[j][i]
+              .split("")
+              .map((a) => {
+                if (locale.char_map[a]) {
+                  return locale.char_map[a];
+                }
+                return a;
+              })
+              .join("");
+          }
+        }
+      }
+    }
+
     if (!groups[file.file]) {
       groups[file.file] = [];
       group_files.push(file.file);
@@ -66,7 +92,6 @@ export const handler = async (argv) => {
       let buff = Buffer.alloc(len);
       orig_buff.copy(buff, 8, 0, Math.min(orig_buff.byteLength, len - 8));
       buff.writeUInt32LE(files[file.file_num].readUInt32LE(0), 0);
-      
 
       //   console.log(buff, orig_buff);
       let map = {};
@@ -87,7 +112,7 @@ export const handler = async (argv) => {
       buff.writeUInt32LE(str_ptr, 4);
       // console.log(buff);
       //   console.log(file.max_len - str_ptr);
-    //   console.assert(str_ptr == len, `len is end ${file.name} ${str_ptr} ${len}`);
+      //   console.assert(str_ptr == len, `len is end ${file.name} ${str_ptr} ${len}`);
       files[file.file_num] = buff.slice(0, str_ptr);
       //continue;
 

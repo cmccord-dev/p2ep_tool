@@ -20,7 +20,10 @@ import * as apply_map_patch from "./cmd/apply_map_patch.mjs";
 import * as apply_dungeon_name_patch from "./cmd/apply_dungeon_name_patch.mjs";
 import * as extract_f35 from "./cmd/extract_f35.mjs";
 import * as insert_f35 from "./cmd/insert_f35.mjs";
+import * as locate_file_tables from "./cmd/locate_file_tables.mjs"
 
+import * as extract from "./cmd/extract.mjs";
+import * as insert_font from "./cmd/insert_font.mjs";
 
 let commands = [
   test,
@@ -39,7 +42,10 @@ let commands = [
   apply_map_patch,
   apply_dungeon_name_patch,
   extract_f35,
-  insert_f35
+  insert_f35,
+  extract,
+  locate_file_tables,
+  insert_font
 ];
 yargs(hideBin(process.argv))
   .command(commands)

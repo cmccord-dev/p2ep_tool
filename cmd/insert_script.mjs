@@ -6,12 +6,21 @@ import * as msg from "../lib/msg_script.mjs";
 import * as scene from "../lib/scene_script.mjs";
 import * as lzss from "../lib/lzss.mjs";
 
+import * as pt from "../lib/locale/pt.mjs";
+
+let locales = {
+  pt,
+};
+
 export const command = [`insert_script [files..]`];
 export const desc = "Reinsert script";
 export const builder = {
   files: {
     demandOption: true,
     type: "array",
+  },
+  lang: {
+    default: "en",
   },
 };
 
@@ -24,6 +33,26 @@ export const handler = async (argv) => {
     let name = argv.files[i];
     console.log(`Processing ${name}`);
     let file = JSON.parse(fs.readFileSync(name));
+
+    if (locales[argv.lang]) {
+      let locale = locales[argv.lang];
+      file.dialog_order.forEach((d) => {
+        for (let i = 0; i < file.dialogs[d].length; i++) {
+          if (typeof file.dialogs[d][i] === "string") {
+            file.dialogs[d][i] = file.dialogs[d][i]
+              .split("")
+              .map((a) => {
+                if (locale.char_map[a]) {
+                  return locale.char_map[a];
+                }
+                return a;
+              })
+              .join("");
+            // console.log(file.dialogs[d][i]);
+          }
+        }
+      });
+    }
 
     let compiled = scene.compile_script(file);
     let compressed = lzss.compress(compiled, 0xc, true);

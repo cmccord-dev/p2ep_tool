@@ -3,6 +3,12 @@ import * as archive from "../lib/archive.mjs";
 import * as cdimage from "../lib/cdimage.mjs";
 import * as file from "../lib/file.mjs";
 import * as msg from "../lib/msg_script.mjs";
+import * as pt from "../lib/locale/pt.mjs";
+
+let locales = {
+  en: { char_map: {} },
+  pt,
+};
 
 export const command = [`insert_string_table [files..]`];
 export const desc = "Reinsert string table";
@@ -10,6 +16,9 @@ export const builder = {
   files: {
     demandOption: true,
     type: "array",
+  },
+  lang: {
+    default: "en",
   },
 };
 
@@ -28,6 +37,25 @@ export const handler = async (argv) => {
     let name = argv.files[i];
     console.log(`Processing ${name}`);
     let file = JSON.parse(fs.readFileSync(name));
+
+    if (locales[argv.lang]) {
+      let locale = locales[argv.lang];
+      for (let j = 0; j < file.strings.length; j++) {
+        for (let i = 0; i < file.strings[j].length; i++) {
+          if (typeof file.strings[j][i] === "string") {
+            file.strings[j][i] = file.strings[j][i]
+              .split("")
+              .map((a) => {
+                if (locale.char_map[a]) {
+                  return locale.char_map[a];
+                }
+                return a;
+              })
+              .join("");
+          }
+        }
+      }
+    }
 
     let buff = Buffer.alloc(file.max_len);
     let ind_ptr = 4;

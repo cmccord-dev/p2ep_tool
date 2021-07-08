@@ -37,11 +37,19 @@ export const handler = async (argv) => {
   }); //f32 seems to be persona tables
 
   let arch = archive.build_archive(files, file.file);
-//   fs.writeFileSync(`35.bin`, arch);
+  //   fs.writeFileSync(`35.bin`, arch);
   await cdimage.write_file(cd, file.file, arch);
 
-  let table = await cdimage.read_file(cd, 32);
-  let table_ptr = 0x35bc;
-  file_table.write(table, table_ptr, files);
-  await cdimage.write_file(cd, 32, table);
+  let to_patch = [
+    [32, 0x35bc],
+    [33, 0x2d8c],
+    [39, 0x24b74],
+  ];
+
+  for (let i = 0; i < to_patch.length; i++) {
+    let table = await cdimage.read_file(cd, to_patch[i][0]);
+    let table_ptr = to_patch[i][1];
+    file_table.write(table, table_ptr, files);
+    await cdimage.write_file(cd, to_patch[i][0], table);
+  }
 };
